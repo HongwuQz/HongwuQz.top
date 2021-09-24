@@ -95,7 +95,7 @@ h1, h2, h3, h4, h5, h6 {
 #KillVirus{
   background-image: url(/public/src/bg.jpg);
   background-repeat: no-repeat;
-  background-size: 100%;
+  background-size: cover;
   box-shadow: 0 0 3px 3px #0c7920,0 0 5px 2px #67f781;
 }
 
