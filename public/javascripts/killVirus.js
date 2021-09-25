@@ -4,11 +4,15 @@ let config = {
     // 病毒生成的时间间隔
     interval:800,
     // 病毒动画的速度
-    speed:3
+    speed:3,
+    // 设置过关需要连击次数
+    passRequire:5
 }
 
 // 得分
 let score = 0;
+
+let isPass = 0;
 
 // 开始页面
 let startAlert = document.querySelector('#start-alert')
@@ -116,6 +120,7 @@ function update(){
             uiLayer.warning = true;
         }else if(virus.offsetTop >= winH){
             // game over
+            isPass = 0;
             gameOver()
         }
     }
@@ -175,14 +180,24 @@ window.addEventListener('keyup',function(e){
 
         }
     }
+    console.log(score == config.passRequire);
+    if(score == config.passRequire){
+        isPass += 1;
+        console.log(isPass)
+        levelUp();
+
+    }
 })
 
 
 // 重玩
 let restartBtn = document.querySelector('#restart-btn')
 restartBtn.onclick = function(){
+    console.log(isPass);
     gameOverAlert.style.display = 'none'
-    resetGame()
+    if(isPass == 0) resetGame();
+    if(isPass >= 1) nextLevel();
+    
 }
 
 function resetGame(){
@@ -195,3 +210,20 @@ function resetGame(){
     uiLayer.warning = false;
     startGame()
 }
+
+let levelUpSign = document.querySelector('#game-over-alert h1');
+
+// 游戏关卡逻辑
+function levelUp(){
+    levelUpSign.innerHTML = '恭喜过关';
+    restartBtn.innerHTML = '下一关';
+    gameOver()
+}
+
+function nextLevel(){
+    config.status = 1;
+    game.innerHTML = ''
+    virues = []
+    startGame()
+}
+
