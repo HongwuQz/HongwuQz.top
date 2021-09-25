@@ -1,5 +1,5 @@
 let config = {
-    // 游戏的状态  0:游戏未开始  1：游戏进行中   2: 游戏结束
+    // 游戏的状态  0:游戏未开始  1：游戏进行中   2: 游戏结束  3:游戏暂停
     status: 0,
     // 病毒生成的时间间隔
     interval:800,
@@ -12,6 +12,7 @@ let config = {
 // 得分
 let score = 0;
 
+// 是否过关的状态  0：没过关  1：过关了  2：暂停状态
 let isPass = 0;
 
 // 开始页面
@@ -21,8 +22,8 @@ let gameDesc = document.querySelector('.game-desc')
 
 let footer = document.querySelector('#start-alert footer')
 
-startAlert.onclick = function(){
-    console.log('游戏开始')
+function begin(){
+    // console.log('游戏开始')
 
     gameDesc.classList.add('slide-up')
     footer.classList.add('slide-down')
@@ -36,9 +37,14 @@ startAlert.onclick = function(){
     config.status = 1;
 }
 
+startAlert.onclick = begin;
+
 var timer,updater;
 function startGame(){
-
+    // console.log('start')
+    config.status = 1;
+    isPass = 0;
+    gameOverAlert.style.display = 'none'
     timer = setInterval(function(){
         makeVirus()
     },config.interval)
@@ -120,10 +126,11 @@ function update(){
             uiLayer.warning = true;
         }else if(virus.offsetTop >= winH){
             // game over
-            isPass = 0;
+            isPass = 2;
             levelUpSign.innerHTML = '任务失败';
             restartBtn.innerHTML = '重  玩';
-            gameOver()
+            gameOver();
+            config.status = 3;
         }
     }
 }
@@ -139,6 +146,7 @@ let gameOverAlert = document.querySelector('#game-over-alert')
 function gameOver(){
     clearInterval(timer)
     clearInterval(updater)
+    // console.log('pause')
     config.status = 2;
     gameOverAlert.style.display = 'block'
 }
@@ -153,6 +161,23 @@ let xmEffect = document.querySelector('#xm')
 window.addEventListener('keyup',function(e){
     let key = e.key;
 
+
+    // 按空格暂停/继续
+    if(key == ' '){
+        // console.log(isPass,config.status)
+        if(isPass == 2 && config.status == 2){
+            startGame();
+        }else if(isPass == 0 && config.status == 1){
+            pasuseGame();
+        }else if(isPass == 1 && config.status == 2){
+            nextLevel();
+        }else if(isPass == 2 && config.status == 3){
+            resetGame();
+        }else if(isPass == 0 && config.status == 0){
+            begin();
+        }
+    }
+
     for(let i = 0;i < virues.length;i++){
         let virus = virues[i]
 
@@ -166,13 +191,11 @@ window.addEventListener('keyup',function(e){
             dieImg.style.left = virus.offsetLeft + 'px'
             dieImg.style.top = virus.offsetTop + 'px'
             dieImg.classList.add('fade-out')
-
             setTimeout(function(){
                 game.removeChild(dieImg)
             },1000)
             game.removeChild(virus)
             virues.splice(i,1)
-
 
             score++;
             scoreLabel.innerHTML = score
@@ -183,9 +206,9 @@ window.addEventListener('keyup',function(e){
 
         }
     }
-    console.log(score == config.passRequire);
+
     if(score == config.passRequire){
-        isPass += 1;
+        isPass == 1;
         levelUp();
         config.passRequire *= 2; 
     }
@@ -195,11 +218,21 @@ window.addEventListener('keyup',function(e){
 // 重玩
 let restartBtn = document.querySelector('#restart-btn')
 restartBtn.onclick = function(){
-    console.log(isPass);
+    // console.log(isPass);
     gameOverAlert.style.display = 'none'
     if(isPass == 0) resetGame();
-    if(isPass >= 1) nextLevel();
+    if(isPass == 1) nextLevel();
+    if(isPass == 2) startGame();
     
+}
+
+// 暂停游戏
+function pasuseGame(){
+    levelUpSign.innerHTML = '游戏暂停';
+    restartBtn.innerHTML = '继  续';
+    gameOver();
+    config.status = 2;
+    isPass = 2;
 }
 
 function resetGame(){
@@ -217,6 +250,7 @@ let levelUpSign = document.querySelector('#game-over-alert h1');
 
 // 游戏关卡逻辑
 function levelUp(){
+    isPass = 1;
     levelUpSign.innerHTML = '恭喜过关';
     restartBtn.innerHTML = '下一关';
     gameOver()
