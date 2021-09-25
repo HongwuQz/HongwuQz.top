@@ -121,6 +121,8 @@ function update(){
         }else if(virus.offsetTop >= winH){
             // game over
             isPass = 0;
+            levelUpSign.innerHTML = '任务失败';
+            restartBtn.innerHTML = '重  玩';
             gameOver()
         }
     }
@@ -143,6 +145,7 @@ function gameOver(){
 
 
 let scoreLabel = document.getElementById('score-label')
+let speedLabel = document.getElementById('speed-label')
 
 let xmEffect = document.querySelector('#xm')
 
@@ -183,9 +186,8 @@ window.addEventListener('keyup',function(e){
     console.log(score == config.passRequire);
     if(score == config.passRequire){
         isPass += 1;
-        console.log(isPass)
         levelUp();
-
+        config.passRequire *= 2; 
     }
 })
 
@@ -221,7 +223,10 @@ function levelUp(){
 }
 
 function nextLevel(){
+    // config.speed = Number(1.25*config.speed).toFixed(2);
+    config.speed *= 1.25;
     config.status = 1;
+    speedLabel.innerHTML = Number(config.speed).toFixed(2)
     game.innerHTML = ''
     virues = []
     startGame()
